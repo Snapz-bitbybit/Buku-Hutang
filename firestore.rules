@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Peraturan keselamatan Firestore untuk Buku Hutang.
+//
+// Prinsip: setiap rekod duduk di bawah users/{uid}/... dan hanya pengguna
+// yang log masuk dengan uid yang sama boleh membacanya atau menulisnya.
+// Tiada siapa lain — termasuk pengguna Firebase lain — boleh menyentuhnya.
+//
+// Salin keseluruhan fail ini ke Firebase Console > Firestore Database > Rules,
+// kemudian tekan Publish. Tanpa langkah ini, rekod anda terdedah.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Apa-apa laluan lain ditolak sepenuhnya.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
